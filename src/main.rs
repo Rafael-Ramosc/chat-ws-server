@@ -1,13 +1,16 @@
 use mio::net::TcpListener;
 use mio::{Events, Interest, Poll, Token};
+use std::collections::HashMap;
 use std::time::Duration;
 
 fn main() -> Result<(), std::io::Error> {
-    let mut poll = Poll::new().unwrap();
+    let mut poll = Poll::new()?;
     let mut events = Events::with_capacity(1024);
 
+    // let mut clients = HashMap::new();
+
     let address = "127.0.0.1:8000".parse().unwrap();
-    let mut listener = TcpListener::bind(address).unwrap();
+    let mut listener = TcpListener::bind(address)?;
 
     const SERVER: Token = Token(0);
     poll.registry()
@@ -15,8 +18,7 @@ fn main() -> Result<(), std::io::Error> {
         .unwrap();
 
     loop {
-        poll.poll(&mut events, Some(Duration::from_millis(100)))
-            .unwrap();
+        poll.poll(&mut events, Some(Duration::from_millis(100)))?;
 
         for event in events.iter() {
             match event.token() {
