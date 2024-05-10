@@ -36,7 +36,7 @@ pub fn event_loop() -> Result<(), std::io::Error> {
                                 .register(&mut connection, token, Interest::READABLE)
                                 .unwrap();
 
-                            let message = "Connection established!";
+                            let message = "Connection established!\n";
                             connection.write_all(message.as_bytes()).unwrap();
 
                             clients.insert(token, connection);
@@ -59,16 +59,12 @@ pub fn event_loop() -> Result<(), std::io::Error> {
                                 let received_data = String::from_utf8_lossy(&buffer[..n]);
 
                                 println!(
-                                    "{} SAY: {}",
+                                    "LOG :{} SAY: {}",
                                     connection.peer_addr().unwrap(),
                                     received_data
                                 );
 
-                                let message_to_sender = format!(
-                                    "{} SAY: {}",
-                                    connection.peer_addr().unwrap(),
-                                    received_data
-                                );
+                                let message_to_sender = format!("YOU: {}", received_data);
 
                                 connection.write_all(message_to_sender.as_bytes()).unwrap();
 
