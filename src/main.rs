@@ -36,6 +36,9 @@ fn main() -> Result<(), std::io::Error> {
                                 .register(&mut connection, token, Interest::READABLE)
                                 .unwrap();
 
+                            let message = "Connection established!";
+                            connection.write_all(message.as_bytes()).unwrap();
+
                             clients.insert(token, connection);
                         }
                         Err(ref err) if would_block(err) => break,
@@ -53,8 +56,16 @@ fn main() -> Result<(), std::io::Error> {
                                 break;
                             }
                             Ok(n) => {
-                                println!("Received data: {:?}", &buffer[..n]);
-                                connection.write_all(&buffer[..n]).unwrap();
+                                let received_data = String::from_utf8_lossy(&buffer[..n]);
+
+                                println!(
+                                    "{} SAY: {}",
+                                    connection.peer_addr().unwrap(),
+                                    received_data
+                                );
+
+                                let message = "Message received!";
+                                connection.write_all(message.as_bytes()).unwrap();
                             }
                             Err(ref err) if would_block(err) => {
                                 clients.insert(token, connection);
