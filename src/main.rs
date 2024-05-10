@@ -64,8 +64,27 @@ fn main() -> Result<(), std::io::Error> {
                                     received_data
                                 );
 
-                                let message = "Message received!";
-                                connection.write_all(message.as_bytes()).unwrap();
+                                let message_to_sender = format!(
+                                    "{} SAY: {}",
+                                    connection.peer_addr().unwrap(),
+                                    received_data
+                                );
+
+                                connection.write_all(message_to_sender.as_bytes()).unwrap();
+
+                                for (other_token, mut other_connection) in &clients {
+                                    if other_token != &token {
+                                        let message = format!(
+                                            "{} SAY: {}",
+                                            connection.peer_addr().unwrap(),
+                                            received_data
+                                        );
+
+                                        other_connection
+                                            .write_all(message.as_bytes())
+                                            .expect("Failed tp write to client");
+                                    }
+                                }
                             }
                             Err(ref err) if would_block(err) => {
                                 clients.insert(token, connection);
