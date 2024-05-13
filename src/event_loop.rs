@@ -67,11 +67,15 @@ pub fn event_loop() -> Result<(), std::io::Error> {
                                     received_data
                                 );
 
-                                let log_read = log_create::log_create(&log);
+                                print!("{}", log);
 
-                                match log_read {
-                                    Ok(contents) => println!("{}", contents),
-                                    Err(err) => println!("Erro ao gravar o log: {}", err),
+                                match log_create::log_create(&log) {
+                                    Ok(()) => {
+                                        println!("Log works!");
+                                    }
+                                    Err(e) => {
+                                        eprintln!("Erro with log: {}", e);
+                                    }
                                 }
 
                                 message_to_sender = client_message(received_data.as_ref());
