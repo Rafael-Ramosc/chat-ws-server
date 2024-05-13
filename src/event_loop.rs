@@ -1,4 +1,4 @@
-use mio::net::TcpListener;
+use mio::net::{TcpListener, TcpStream};
 use mio::{Events, Interest, Poll, Token};
 use std::collections::HashMap;
 use std::io::{Read, Write};
@@ -9,7 +9,7 @@ pub fn event_loop() -> Result<(), std::io::Error> {
     let mut events = Events::with_capacity(1024);
     let mut clients = HashMap::new();
 
-    let address = "127.0.0.1:8000".parse().unwrap();
+    let address = "0.0.0.0:8000".parse().unwrap();
     let mut listener = TcpListener::bind(address)?;
 
     const SERVER: Token = Token(0);
@@ -57,6 +57,7 @@ pub fn event_loop() -> Result<(), std::io::Error> {
                             }
                             Ok(n) => {
                                 let received_data = String::from_utf8_lossy(&buffer[..n]);
+                                let message_to_sender: String;
 
                                 println!(
                                     "LOG :{} SAY: {}",
@@ -64,23 +65,16 @@ pub fn event_loop() -> Result<(), std::io::Error> {
                                     received_data
                                 );
 
-                                let message_to_sender = format!("YOU: {}", received_data);
+                                message_to_sender = client_message(received_data.as_ref());
 
                                 connection.write_all(message_to_sender.as_bytes()).unwrap();
 
-                                for (other_token, mut other_connection) in &clients {
-                                    if other_token != &token {
-                                        let message = format!(
-                                            "{} SAY: {}",
-                                            connection.peer_addr().unwrap(),
-                                            received_data
-                                        );
-
-                                        other_connection
-                                            .write_all(message.as_bytes())
-                                            .expect("Failed tp write to client");
-                                    }
-                                }
+                                message_to_all(
+                                    &mut clients,
+                                    token,
+                                    &connection,
+                                    &received_data.as_ref(),
+                                );
                             }
                             Err(ref err) if would_block(err) => {
                                 clients.insert(token, connection);
@@ -100,4 +94,26 @@ pub fn event_loop() -> Result<(), std::io::Error> {
 
 fn would_block(err: &std::io::Error) -> bool {
     err.kind() == std::io::ErrorKind::WouldBlock
+}
+
+fn client_message(received_data: &str) -> String {
+    let message_to_client = format!("YOU: {}", received_data);
+    message_to_client
+}
+
+fn message_to_all(
+    clients: &mut HashMap<Token, TcpStream>,
+    token: Token,
+    connection: &TcpStream,
+    received_data: &str,
+) {
+    for (other_token, other_connection) in clients.iter_mut() {
+        if other_token != &token {
+            let message = format!("{} SAY: {}", connection.peer_addr().unwrap(), received_data);
+
+            other_connection
+                .write_all(message.as_bytes())
+                .expect("Failed tp write to client");
+        }
+    }
 }
