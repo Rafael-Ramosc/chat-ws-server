@@ -1,3 +1,5 @@
+mod log_create;
+
 use mio::net::{TcpListener, TcpStream};
 use mio::{Events, Interest, Poll, Token};
 use std::collections::HashMap;
@@ -59,11 +61,18 @@ pub fn event_loop() -> Result<(), std::io::Error> {
                                 let received_data = String::from_utf8_lossy(&buffer[..n]);
                                 let message_to_sender: String;
 
-                                println!(
+                                let log = format!(
                                     "LOG :{} SAY: {}",
                                     connection.peer_addr().unwrap(),
                                     received_data
                                 );
+
+                                let log_read = log_create::log_create(&log);
+
+                                match log_read {
+                                    Ok(contents) => println!("{}", contents),
+                                    Err(err) => println!("Erro ao gravar o log: {}", err),
+                                }
 
                                 message_to_sender = client_message(received_data.as_ref());
 
