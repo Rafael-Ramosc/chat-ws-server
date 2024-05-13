@@ -70,9 +70,7 @@ pub fn event_loop() -> Result<(), std::io::Error> {
                                 print!("{}", log);
 
                                 match log_create::log_create(&log) {
-                                    Ok(()) => {
-                                        println!("Log works!");
-                                    }
+                                    Ok(()) => {}
                                     Err(e) => {
                                         eprintln!("Erro with log: {}", e);
                                     }
