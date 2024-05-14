@@ -61,12 +61,7 @@ pub fn event_loop() -> Result<(), std::io::Error> {
                                 let received_data = String::from_utf8_lossy(&buffer[..n]);
                                 let message_to_sender: String;
 
-                                let log = format!(
-                                    "LOG :{} SAY: {}",
-                                    connection.peer_addr().unwrap(),
-                                    received_data
-                                );
-
+                                let log = log_message(&connection, &received_data.as_ref());
                                 print!("{}", log);
 
                                 match log_create::log_create(&log) {
@@ -80,7 +75,7 @@ pub fn event_loop() -> Result<(), std::io::Error> {
 
                                 connection.write_all(message_to_sender.as_bytes()).unwrap();
 
-                                message_to_all(
+                                chat_message(
                                     &mut clients,
                                     token,
                                     &connection,
@@ -112,7 +107,7 @@ fn client_message(received_data: &str) -> String {
     message_to_client
 }
 
-fn message_to_all(
+fn chat_message(
     clients: &mut HashMap<Token, TcpStream>,
     token: Token,
     connection: &TcpStream,
@@ -127,4 +122,14 @@ fn message_to_all(
                 .expect("Failed tp write to client");
         }
     }
+}
+
+fn log_message(connection: &TcpStream, received_data: &str) -> String {
+    let log = format!(
+        "LOG :{} SAY: {}",
+        connection.peer_addr().unwrap(),
+        received_data
+    );
+
+    log
 }
