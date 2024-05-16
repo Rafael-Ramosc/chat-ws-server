@@ -1,6 +1,7 @@
-mod log_create;
+pub mod log;
+pub mod message_control;
 
-use mio::net::{TcpListener, TcpStream};
+use mio::net::TcpListener;
 use mio::{Events, Interest, Poll, Token};
 use std::collections::HashMap;
 use std::io::{Read, Write};
@@ -43,7 +44,7 @@ pub fn event_loop() -> Result<(), std::io::Error> {
 
                             clients.insert(token, connection);
                         }
-                        Err(ref err) if would_block(err) => break,
+                        Err(ref err) if message_control::would_block(err) => break,
                         Err(err) => return Err(err),
                     }
                 },
@@ -61,28 +62,32 @@ pub fn event_loop() -> Result<(), std::io::Error> {
                                 let received_data = String::from_utf8_lossy(&buffer[..n]);
                                 let message_to_sender: String;
 
-                                let log = log_message(&connection, &received_data.as_ref());
+                                let log = message_control::log_message(
+                                    &connection,
+                                    &received_data.as_ref(),
+                                );
                                 print!("{}", log);
 
-                                match log_create::log_create(&log) {
+                                match log::log_create(&log) {
                                     Ok(()) => {}
                                     Err(e) => {
                                         eprintln!("Erro with log: {}", e);
                                     }
                                 }
 
-                                message_to_sender = client_message(received_data.as_ref());
+                                message_to_sender =
+                                    message_control::client_message(received_data.as_ref());
 
                                 connection.write_all(message_to_sender.as_bytes()).unwrap();
 
-                                chat_message(
+                                message_control::chat_message(
                                     &mut clients,
                                     token,
                                     &connection,
                                     &received_data.as_ref(),
                                 );
                             }
-                            Err(ref err) if would_block(err) => {
+                            Err(ref err) if message_control::would_block(err) => {
                                 clients.insert(token, connection);
                                 break;
                             }
@@ -96,40 +101,4 @@ pub fn event_loop() -> Result<(), std::io::Error> {
             }
         }
     }
-}
-
-fn would_block(err: &std::io::Error) -> bool {
-    err.kind() == std::io::ErrorKind::WouldBlock
-}
-
-fn client_message(received_data: &str) -> String {
-    let message_to_client = format!("YOU: {}", received_data);
-    message_to_client
-}
-
-fn chat_message(
-    clients: &mut HashMap<Token, TcpStream>,
-    token: Token,
-    connection: &TcpStream,
-    received_data: &str,
-) {
-    for (other_token, other_connection) in clients.iter_mut() {
-        if other_token != &token {
-            let message = format!("{} SAY: {}", connection.peer_addr().unwrap(), received_data);
-
-            other_connection
-                .write_all(message.as_bytes())
-                .expect("Failed tp write to client");
-        }
-    }
-}
-
-fn log_message(connection: &TcpStream, received_data: &str) -> String {
-    let log = format!(
-        "LOG :{} SAY: {}",
-        connection.peer_addr().unwrap(),
-        received_data
-    );
-
-    log
 }

@@ -7,3 +7,4 @@ edition = "2021"
 
 [dependencies]
 mio = { version = "0.8.11", features = ["os-poll", "net"]}
+yaml-rust = "0.4.5"
