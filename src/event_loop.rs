@@ -1,18 +1,20 @@
 pub mod log;
 pub mod message_control;
 
+use crate::config::Config;
 use mio::net::TcpListener;
 use mio::{Events, Interest, Poll, Token};
 use std::collections::HashMap;
 use std::io::{Read, Write};
 use std::time::Duration;
 
-pub fn event_loop() -> Result<(), std::io::Error> {
+pub fn event_loop(config: &Config) -> Result<(), std::io::Error> {
     let mut poll = Poll::new()?;
     let mut events = Events::with_capacity(1024);
     let mut clients = HashMap::new();
 
-    let address = "0.0.0.0:8000".parse().unwrap();
+    let server_ip_port = format!("{}:{}", config.server.host, config.server.port);
+    let address = server_ip_port.parse().unwrap();
     let mut listener = TcpListener::bind(address)?;
 
     const SERVER: Token = Token(0);
