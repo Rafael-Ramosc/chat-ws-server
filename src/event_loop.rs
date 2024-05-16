@@ -32,7 +32,9 @@ pub fn event_loop(config: &Config) -> Result<(), std::io::Error> {
                 SERVER => loop {
                     match listener.accept() {
                         Ok((mut connection, address)) => {
-                            println!("Accepted connection from: {}", address);
+                            let address_str = address.to_string();
+
+                            message_control::accept_connection(address_str, &connection);
 
                             let token = next_token;
                             next_token.0 += 1;
@@ -40,9 +42,6 @@ pub fn event_loop(config: &Config) -> Result<(), std::io::Error> {
                             poll.registry()
                                 .register(&mut connection, token, Interest::READABLE)
                                 .unwrap();
-
-                            let message = "Connection established!\n";
-                            connection.write_all(message.as_bytes()).unwrap();
 
                             clients.insert(token, connection);
                         }

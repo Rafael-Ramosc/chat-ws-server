@@ -38,3 +38,10 @@ pub fn log_message(connection: &TcpStream, received_data: &str) -> String {
 
     log
 }
+
+pub fn accept_connection(address: String, mut connection: &TcpStream) {
+    println!("Accepted connection from: {}", address);
+
+    let message = "Connection established!\n";
+    connection.write_all(message.as_bytes()).unwrap();
+}
