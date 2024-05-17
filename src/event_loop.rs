@@ -34,7 +34,7 @@ pub fn event_loop(config: &Config) -> Result<(), std::io::Error> {
                         Ok((mut connection, address)) => {
                             let address_str = address.to_string();
 
-                            message_control::accept_connection(address_str, &connection);
+                            message_control::accept_connection(address_str.clone(), &connection);
 
                             let token = next_token;
                             next_token.0 += 1;
@@ -44,6 +44,11 @@ pub fn event_loop(config: &Config) -> Result<(), std::io::Error> {
                                 .unwrap();
 
                             clients.insert(token, connection);
+
+                            message_control::accept_connection_all(
+                                &format!("{} connected\n", address_str),
+                                &clients,
+                            );
                         }
                         Err(ref err) if message_control::would_block(err) => break,
                         Err(err) => return Err(err),

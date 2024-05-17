@@ -45,3 +45,11 @@ pub fn accept_connection(address: String, mut connection: &TcpStream) {
     let message = "Connection established!\n";
     connection.write_all(message.as_bytes()).unwrap();
 }
+
+pub fn accept_connection_all(message: &str, clients: &HashMap<Token, TcpStream>) {
+    for (_, mut client) in clients {
+        if let Err(err) = client.write_all(message.as_bytes()) {
+            println!("Error trying to connect to client: {}", err);
+        }
+    }
+}
