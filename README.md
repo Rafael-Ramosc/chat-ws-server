@@ -1,5 +1,7 @@
 # Chat Server
 
+![demo-chat](github/chat-demo.png)
+
 This is a chat server implementation using the Rust programming language. The server accepts TCP connections from clients and allows them to communicate with each other in a chat room. It handles incoming messages from clients and broadcasts them to all connected clients.
 
 ## Features
