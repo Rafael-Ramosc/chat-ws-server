@@ -1,5 +1,5 @@
 mod config;
-mod event_loop;
+mod socket;
 
 fn main() {
     let config =
@@ -7,5 +7,5 @@ fn main() {
 
     println!("Server is running!");
 
-    event_loop::event_loop(&config).expect("Failed to run event loop");
+    socket::event_loop(&config).expect("Failed to run event loop");
 }
