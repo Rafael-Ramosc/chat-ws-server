@@ -26,14 +26,19 @@ use std::time::Duration;
 ///   `Err` containing an `std::io::Error` if an error occurs.
 
 pub fn event_loop(config: &Config) -> Result<(), std::io::Error> {
+    //Create a new Poll instance and an Events buffer with a capacity of 1024.
     let mut poll = Poll::new()?;
     let mut events = Events::with_capacity(1024);
+
+    //Initialize an empty HashMap called clients to store client connections.
     let mut clients = HashMap::new();
 
+    //Bind a TcpListener to the server's IP address and port specified in the configuration.
     let server_ip_port = format!("{}:{}", config.server.host, config.server.port);
     let address = server_ip_port.parse().unwrap();
     let mut listener = TcpListener::bind(address)?;
 
+    //Register the TcpListener with the Poll instance using the SERVER token.
     const SERVER: Token = Token(0);
     poll.registry()
         .register(&mut listener, SERVER, Interest::READABLE)
@@ -42,10 +47,13 @@ pub fn event_loop(config: &Config) -> Result<(), std::io::Error> {
     let mut next_token = Token(1);
 
     loop {
+        //Poll for events with a timeout of 100 milliseconds.
         poll.poll(&mut events, Some(Duration::from_millis(100)))?;
 
         for event in events.iter() {
             match event.token() {
+                //If the event token is SERVER
+                //Accept new client connections in a loop until a WouldBlock error occurs.
                 SERVER => loop {
                     match listener.accept() {
                         Ok((mut connection, address)) => {
@@ -53,15 +61,19 @@ pub fn event_loop(config: &Config) -> Result<(), std::io::Error> {
 
                             message_control::accept_connection(address_str.clone(), &connection);
 
+                            //Assign a unique token to the connection
                             let token = next_token;
                             next_token.0 += 1;
 
+                            //Register the connection with the Poll instance.
                             poll.registry()
                                 .register(&mut connection, token, Interest::READABLE)
                                 .unwrap();
 
+                            //Insert the connection into the clients map.
                             clients.insert(token, connection);
 
+                            //Broadcast a connection message to all clients
                             message_control::accept_connection_all(
                                 &format!("{} connected\n", address_str),
                                 &clients,
@@ -71,9 +83,12 @@ pub fn event_loop(config: &Config) -> Result<(), std::io::Error> {
                         Err(err) => return Err(err),
                     }
                 },
+                //If the event token is a client token.
                 token => {
+                    //Remove the corresponding client connection from the clients map.
                     let mut connection = clients.remove(&token).unwrap();
 
+                    //Read data from the connection in a loop until a WouldBlock error occurs or the connection is closed.
                     loop {
                         let mut buffer = [0; 1024];
                         match connection.read(&mut buffer) {
@@ -91,6 +106,7 @@ pub fn event_loop(config: &Config) -> Result<(), std::io::Error> {
                                 );
                                 print!("{}", log);
 
+                                //Create a log entry for the message.
                                 match log::log_create(&log) {
                                     Ok(()) => {}
                                     Err(e) => {
@@ -111,6 +127,7 @@ pub fn event_loop(config: &Config) -> Result<(), std::io::Error> {
                                 );
                             }
                             Err(ref err) if message_control::would_block(err) => {
+                                //If the connection is still open, insert it back into the clients map.
                                 clients.insert(token, connection);
                                 break;
                             }
