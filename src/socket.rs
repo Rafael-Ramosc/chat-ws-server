@@ -1,3 +1,9 @@
+//! # Event Loop
+//!
+//! This module contains the main event loop for the server application. It sets up a TCP listener,
+//! accepts incoming connections, and handles client communication using the Mio library for
+//! asynchronous I/O.
+
 pub mod log;
 pub mod message_control;
 
@@ -7,6 +13,17 @@ use mio::{Events, Interest, Poll, Token};
 use std::collections::HashMap;
 use std::io::{Read, Write};
 use std::time::Duration;
+
+/// The main event loop function that drives the server application.
+///
+/// # Parameters
+///
+/// - `config: &Config` - A reference to the server configuration.
+///
+/// # Returns
+///
+/// - `Result<(), std::io::Error>` - Returns `Ok(())` if the event loop runs successfully, or an
+///   `Err` containing an `std::io::Error` if an error occurs.
 
 pub fn event_loop(config: &Config) -> Result<(), std::io::Error> {
     let mut poll = Poll::new()?;
