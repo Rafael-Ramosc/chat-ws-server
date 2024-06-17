@@ -3,9 +3,16 @@
 version = 3
 
 [[package]]
+name = "cc"
+version = "1.0.99"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "96c51067fd44124faa7f870b4b1c969379ad32b2ba805aa959430ceaa384f695"
+
+[[package]]
 name = "chat-ws-server"
 version = "0.5.0"
 dependencies = [
+ "http-muncher",
  "mio",
  "serde",
  "serde_yaml",
@@ -22,6 +29,16 @@ name = "hashbrown"
 version = "0.14.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e5274423e17b7c9fc20b6e7e208532f9b19825d82dfd615708b70edd83df41f1"
+
+[[package]]
+name = "http-muncher"
+version = "0.3.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ad5ef098f884f8d927426a231d14a923be1798ff0d5ad238989f4912565fb283"
+dependencies = [
+ "cc",
+ "libc",
+]
 
 [[package]]
 name = "indexmap"

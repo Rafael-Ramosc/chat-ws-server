@@ -9,3 +9,4 @@ edition = "2021"
 mio = { version = "0.8.11", features = ["os-poll", "net"]}
 serde = { version = "1.0", features = ["derive"] }
 serde_yaml = "0.9"
+http-muncher = "0.3.2"
