@@ -10,7 +10,7 @@ checksum = "96c51067fd44124faa7f870b4b1c969379ad32b2ba805aa959430ceaa384f695"
 
 [[package]]
 name = "chat-ws-server"
-version = "0.5.0"
+version = "0.6.0"
 dependencies = [
  "http-muncher",
  "mio",
