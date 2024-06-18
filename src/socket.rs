@@ -36,7 +36,7 @@ pub fn event_loop(config: &Config) -> Result<(), std::io::Error> {
     //Bind a TcpListener to the server's IP address and port specified in the configuration.
     let server_ip_port = format!("{}:{}", config.server.host, config.server.port);
     let address = server_ip_port.parse().unwrap();
-    let mut listener = TcpListener::bind(address)?;
+    let mut listener = TcpListener::bind(address)?; //TODO: verificar se ja tiver ip e porta em uso
 
     //Register the TcpListener with the Poll instance using the SERVER token.
     const SERVER: Token = Token(0);
