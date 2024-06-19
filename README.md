@@ -25,7 +25,7 @@ This is a chat server implementation using the Rust. The server accepts TCP conn
 
 ## Configuration
 
-The server can be configured through the **server_config.yml** file. You can adjust the settings according to your needs.
+The server can be configured through the **server_config.yml** file.
 
 ## Contributing
 
