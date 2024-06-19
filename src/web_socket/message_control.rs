@@ -1,9 +1,5 @@
 use base64::{engine::general_purpose, Engine};
-use mio::net::TcpStream;
-use mio::Token;
 use sha1::{Digest, Sha1};
-use std::collections::HashMap;
-use std::io::Write;
 
 pub fn gen_key(key: &str) -> String {
     let mut hasher = Sha1::new();
