@@ -2,6 +2,7 @@ use std::fs::{self, OpenOptions};
 use std::io::Write;
 use std::path::Path;
 
+#[allow(dead_code)]
 pub fn log_create(log: &str) -> std::io::Result<()> {
     let dir_path = Path::new("logs");
     let file_path = dir_path.join("log.txt");

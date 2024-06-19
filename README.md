@@ -1,5 +1,7 @@
 # Chat Server 1.0
 
+![demo-option](github/server-option.png)
+> Server options
 
 ![demo-chat](github/chat-demo.png)
 > Simple socket the client use the terminal to connect to the server and send messages to the chat room.
