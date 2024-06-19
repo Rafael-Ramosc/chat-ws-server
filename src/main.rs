@@ -1,5 +1,6 @@
 mod config;
 mod socket;
+mod web_socket;
 
 fn main() {
     let config =
@@ -30,7 +31,8 @@ fn main() {
                 break;
             }
             2 => {
-                println!("Web server is not implemented yet");
+                println!("Web server is running!");
+                web_socket::event_loop(&config).expect("Failed to run event loop");
             }
             _ => {
                 println!("Invalid choice");
