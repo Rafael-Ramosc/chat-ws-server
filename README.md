@@ -1,4 +1,4 @@
-# Chat Server 0.7
+# Chat Server 1.0
 
 
 ![demo-chat](github/chat-demo.png)
