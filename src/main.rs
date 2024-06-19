@@ -7,7 +7,7 @@ fn main() {
         config::Config::from_file("server_config.yml").expect("Failed to load configuration");
     loop {
         println!("Choose a server to run:");
-        println!("1. TCP server");
+        println!("1. TCP server (Terminal)");
         println!("2. Web server");
 
         let mut user_choose = String::new();
@@ -33,6 +33,7 @@ fn main() {
             2 => {
                 println!("Web server is running!");
                 web_socket::event_loop(&config).expect("Failed to run event loop");
+                break;
             }
             _ => {
                 println!("Invalid choice");
@@ -40,7 +41,7 @@ fn main() {
             }
         };
 
-        println!("Closing connection!");
-        break;
+        // println!("Closing connection!");
+        //break;
     }
 }
