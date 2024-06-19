@@ -1,55 +1,18 @@
+use base64::{engine::general_purpose, Engine};
 use mio::net::TcpStream;
 use mio::Token;
+use sha1::{Digest, Sha1};
 use std::collections::HashMap;
 use std::io::Write;
 
+pub fn gen_key(key: &str) -> String {
+    let mut hasher = Sha1::new();
+    hasher.update(key.as_bytes());
+    hasher.update(b"258EAFA5-E914-47DA-95CA-C5AB0DC85B11");
+    let hash = hasher.finalize();
+    general_purpose::STANDARD.encode(hash)
+}
+
 pub fn would_block(err: &std::io::Error) -> bool {
     err.kind() == std::io::ErrorKind::WouldBlock
-}
-
-pub fn client_message(received_data: &str) -> String {
-    let message_to_client = format!("YOU: {}", received_data);
-    message_to_client
-}
-
-pub fn chat_message(
-    clients: &mut HashMap<Token, TcpStream>,
-    token: Token,
-    connection: &TcpStream,
-    received_data: &str,
-) {
-    for (other_token, other_connection) in clients.iter_mut() {
-        if other_token != &token {
-            let message = format!("{} SAY: {}", connection.peer_addr().unwrap(), received_data);
-
-            other_connection
-                .write_all(message.as_bytes())
-                .expect("Failed tp write to client");
-        }
-    }
-}
-
-pub fn log_message(connection: &TcpStream, received_data: &str) -> String {
-    let log = format!(
-        "LOG :{} SAY: {}",
-        connection.peer_addr().unwrap(),
-        received_data
-    );
-
-    log
-}
-
-pub fn accept_connection(address: String, mut connection: &TcpStream) {
-    println!("Accepted connection from: {}", address);
-
-    let message = "Connection established!\n";
-    connection.write_all(message.as_bytes()).unwrap();
-}
-
-pub fn accept_connection_all(message: &str, clients: &HashMap<Token, TcpStream>) {
-    for (_, mut client) in clients {
-        if let Err(err) = client.write_all(message.as_bytes()) {
-            println!("Error trying to connect to client: {}", err);
-        }
-    }
 }
