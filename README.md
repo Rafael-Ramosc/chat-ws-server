@@ -1,4 +1,4 @@
-# Chat Server 0.6
+# Chat Server 0.7
 
 ![demo-chat](github/chat-demo.png)
 
@@ -11,6 +11,19 @@ This is a chat server implementation using the Rust. The server accepts TCP conn
 - Broadcasts messages to all connected clients in the chat room.
 - Supports logging of client messages.
 - Includes message control functionality for processing client messages.
+- Allows the user to choose between running a TCP server or a Web server.
+
+## Getting Started
+
+1. Clone this repository to your local machine.
+2. Make sure you have Rust installed.
+3. Run the server using the command `cargo run`.
+4. Choose between running a TCP server or a Web server by following the instructions in the terminal.
+5. Clients can connect to the server using a TCP client or a WebSocket client, depending on the chosen server type.
+
+## Configuration
+
+The server can be configured through the **server_config.yml** file. You can adjust the settings according to your needs.
 
 ## Contributing
 
